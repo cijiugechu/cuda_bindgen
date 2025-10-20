@@ -1,8 +1,8 @@
-# Bindgen Cuda
+# `cuda_bindgen`
 
-[![Latest version](https://img.shields.io/crates/v/bindgen_cuda.svg)](https://crates.io/crates/bindgen_cuda)
-[![Documentation](https://docs.rs/bindgen_cuda/badge.svg)](https://docs.rs/bindgen_cuda)
-![License](https://img.shields.io/crates/l/bindgen_cuda.svg)
+[![Latest version](https://img.shields.io/crates/v/cuda_bindgen.svg)](https://crates.io/crates/cuda_bindgen)
+[![Documentation](https://docs.rs/cuda_bindgen/badge.svg)](https://docs.rs/cuda_bindgen)
+![License](https://img.shields.io/crates/l/cuda_bindgen.svg)
 
 Similar crate than [bindgen](https://github.com/rust-lang/rust-bindgen) in philosophy.
 It will help create automatic bindgen to cuda kernels source files and make them easier to use
@@ -19,17 +19,17 @@ __global__ void cuda_hello(){
 }
 ```
 
-You can add `bindgen_cuda` as a build dependency:
+You can add `cuda_bindgen` as a build dependency:
 
 ```bash
-cargo add --build bindgen_cuda
+cargo add --build cuda_bindgen
 ```
 
 And then create this `build.rs`
 
 ```no_run
 fn main() {
-    let builder = bindgen_cuda::Builder::default();
+    let builder = cuda_bindgen::Builder::default();
     let bindings = builder.build_ptx().unwrap();
     bindings.write("src/lib.rs");
 }
@@ -64,7 +64,7 @@ Then write the `build.rs`:
 
 ```no_run
 fn main() {
-    let builder = bindgen_cuda::Builder::default();
+    let builder = cuda_bindgen::Builder::default();
     builder.build_lib("libcuda.a");
     println!("cargo:rustc-link-lib=cuda");
 }

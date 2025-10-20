@@ -6,10 +6,10 @@ use std::hash::{Hash, Hasher};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
+use error::Error;
 
-/// Error messages
-#[derive(Debug)]
-pub enum Error {}
+pub mod compute_cap;
+pub mod error;
 
 /// Core builder to setup the bindings options
 #[derive(Debug)]
@@ -480,6 +480,12 @@ fn compute_cap() -> Result<usize, Error> {
         compute_cap_str
             .parse::<usize>()
             .expect("Could not parse code")
+    } else if let Ok(cc) = crate::compute_cap::get() {
+        let cap_str = cc.to_string();
+        println!("cargo:rustc-env=CUDA_COMPUTE_CAP={cap_str}");
+        cap_str
+            .parse::<usize>()
+            .expect("Could not parse compute capability from CUDA driver")
     } else {
         // Use nvidia-smi to get the current compute cap
         let out = std::process::Command::new("nvidia-smi")
