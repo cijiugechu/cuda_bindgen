@@ -56,6 +56,7 @@ jobs:
         uses: Jimver/cuda-toolkit@v0.2.18
         with:
           cuda: "12.4.1"
+          method: "network"
 
       - name: Verify CUDA install
         if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
