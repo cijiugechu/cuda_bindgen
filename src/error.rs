@@ -1,10 +1,12 @@
 use cudarc::driver::sys::cudaError_enum;
 use cudarc::driver::result::DriverError;
 
-/// Error messages
+/// Error type for failures originating from CUDA runtime or driver calls.
 #[derive(Debug, Clone)]
 pub enum Error {
+    /// Error returned by the CUDA Runtime (FFI `cudaError_enum`).
     CudaRunTimeSys(cudaError_enum),
+    /// Error returned by the CUDA Driver API wrapper.
     CudaRunTimeDriver(DriverError),
 }
 
@@ -28,4 +30,5 @@ impl From<DriverError> for Error {
     }
 }
 
+/// Convenient result alias used by this crate.
 pub type Result<T> = std::result::Result<T, Error>;

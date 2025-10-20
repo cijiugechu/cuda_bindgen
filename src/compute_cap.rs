@@ -3,6 +3,9 @@ use cudarc::driver::sys::{cuDeviceComputeCapability, CUresult};
 use cudarc::driver::CudaContext;
 use crate::error::{Result, Error};
 
+/// CUDA compute capability (major.minor) for a device.
+///
+/// Implements `Display` as a two-digit code (e.g. 90 for 9.0).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ComputeCapability {
     major: c_int,
@@ -16,6 +19,9 @@ impl std::fmt::Display for ComputeCapability {
     }
 }
 
+/// Queries the primary device and returns its CUDA compute capability.
+///
+/// On success, returns a [`ComputeCapability`]; on failure returns [`crate::error::Error`].
 pub fn get() -> Result<ComputeCapability> {
     let mut major = 0;
     let mut minor = 0;

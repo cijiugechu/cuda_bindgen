@@ -8,7 +8,9 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use error::Error;
 
+/// Utilities to query the active GPU's CUDA compute capability.
 pub mod compute_cap;
+/// Error types and a crate-wide `Result` alias used throughout the API.
 pub mod error;
 
 /// Core builder to setup the bindings options
