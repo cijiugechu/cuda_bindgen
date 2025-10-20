@@ -55,8 +55,12 @@ jobs:
         if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
-          cuda: "12.4.0"
-          method: "network"
+          cuda: '12.8.1'
+          use-github-cache: false
+          use-local-cache: true
+          linux-local-args: '["--toolkit"]'
+          method: 'network'
+          sub-packages: '["nvcc"]'
 
       - name: Verify CUDA install
         if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
