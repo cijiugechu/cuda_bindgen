@@ -1,0 +1,73 @@
+name: Publish crate to crates.io on versioned commit
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from commit message
+        id: commit_version
+        shell: bash
+        run: |
+          msg="${{ github.event.head_commit.message }}"
+          if [[ "$msg" =~ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "Found semver in commit message: ${BASH_REMATCH[1]}"
+          else
+            echo "No semver (x.y.z) found in commit message; subsequent steps will be skipped."
+          fi
+
+      - name: Read version from Cargo.toml
+        id: cargo_version
+        if: steps.commit_version.outputs.version != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo_toml_version=$(awk 'BEGIN{FS="="} /^\[package\]/{in_pkg=1; next} /^\[/{in_pkg=0} in_pkg && $1 ~ /version/ {gsub(/[" ]/,"",$2); print $2; exit}' Cargo.toml)
+          if [[ -n "$cargo_toml_version" ]]; then
+            echo "version=$cargo_toml_version" >> "$GITHUB_OUTPUT"
+            echo "Cargo.toml version: $cargo_toml_version"
+          else
+            echo "Failed to parse version from Cargo.toml" >&2
+            exit 1
+          fi
+
+      - name: Set up Rust
+        if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install CUDA Toolkit
+        if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
+        uses: Jimver/cuda-toolkit@v0.2.18
+        with:
+          cuda: "12.4.1"
+
+      - name: Verify CUDA install
+        if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
+        run: |
+          nvcc --version
+          echo "CUDA_PATH=${CUDA_PATH}"
+
+      - name: Publish to crates.io
+        if: steps.commit_version.outputs.version != '' && steps.commit_version.outputs.version == steps.cargo_version.outputs.version
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish --token "$CARGO_REGISTRY_TOKEN"
+
+
