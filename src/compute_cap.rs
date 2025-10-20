@@ -1,7 +1,7 @@
 use std::ffi::c_int;
 use cudarc::driver::sys::{cuDeviceComputeCapability, CUresult};
 use cudarc::driver::CudaContext;
-use crate::error::Result;
+use crate::error::{Result, Error};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ComputeCapability {
@@ -24,7 +24,7 @@ pub fn get() -> Result<ComputeCapability> {
     unsafe {
         let result = cuDeviceComputeCapability(&mut major, &mut minor, device);
         if result != CUresult::CUDA_SUCCESS {
-            return Err(Error::CudaRunTime(result));
+            return Err(Error::CudaRunTimeSys(result));
         }
     }
     Ok(ComputeCapability { major, minor })
